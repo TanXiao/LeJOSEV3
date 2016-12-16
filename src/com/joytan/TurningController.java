@@ -1,42 +1,42 @@
-/**
- * 
- */
 package com.joytan;
 
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 
-/**
- * @author Xiao
- *
- */
-public class TurningController 
-{
-	static EV3MediumRegulatedMotor steeringWheel = new EV3MediumRegulatedMotor(MotorPort.B);
-	static GyroSensorReader angleReader = new GyroSensorReader();
-	
-	static private int MAX_ANGLE = 45;
-	static private int TURNING_SPEED = 30;
-	
-	private int currentSteeringWheelDirection = 0;
-	
-	protected void turn(int degree) throws InterruptedException {	
-		
-		int direction = (degree > 0) ? 1 : -1;
-		angleReader.reset();
-	
-		while (Math.abs(degree) < Math.abs(angleReader.readAngle())) {
-			
-		}
-		
-		
-		
-		
+public class TurningController {
+	private static int MAX_ANGLE = 45;
+
+	private EV3MediumRegulatedMotor turingMotor;
+	private TurningSensor sensor;
+
+	private int speed = 30;
+	private int currenyMotorDirection = 0;
+
+	public TurningController() {
+		turingMotor = new EV3MediumRegulatedMotor(MotorPort.B);
+		sensor = new TurningSensor();
+		turingMotor.setSpeed(speed);
 	}
 
-	private void setDirection(int angleToDest) {
-		steeringWheel.rotate(angleToDest - currentSteeringWheelDirection);
-		currentSteeringWheelDirection = angleToDest;	
+	public void turn(int angle) {
+		while (angle != sensor.getAngle()) {
+
+			if (angle >= MAX_ANGLE) {
+				setTurningMotorDirection(MAX_ANGLE);
+			} else {
+				setTurningMotorDirection(angle);
+			}
+			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
-	
+
+	private void setTurningMotorDirection(int angle) {
+		turingMotor.rotate(angle - currenyMotorDirection);
+		currenyMotorDirection = angle;
+	}
 }
